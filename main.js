@@ -13,9 +13,17 @@ function unlockScreen() {
   }
 
   toastLog("开始滑动解锁");
-  const x = deviceWidth / 2;
-  swipe(x, (deviceHeight / 4) * 3, x, deviceHeight / 4, 2000);
-  sleep(2000); // 等待动画
+  let times = 3;
+  while (times--) {
+    swipe(
+      deviceWidth / 2,
+      (deviceHeight / 4) * 3,
+      deviceWidth / 2,
+      deviceHeight / 4,
+      1000
+    );
+    sleep(2000); // 等待动画
+  }
 
   toastLog("开始手势解锁");
   // gestureParam 解锁的坐标和时间
@@ -44,10 +52,10 @@ function checkIn() {
     // 不延迟签到可能报错
     sleep(2000);
     // 会卡在人机验证，需要手动操作
-    click("立即签到");
+    // click("立即签到");
     while (!text("已签到").exists()) sleep(1000);
     // 手动检查结果的时间
-    sleep(10 * 1000);
+    sleep(3 * 1000);
     toastLog("签到成功");
   }
 }
@@ -70,6 +78,10 @@ function viewPost() {
           .children();
         break;
       } catch (error) {
+        if (id("single_banner").exists()) {
+          id("close").findOne().click();
+          toastLog("已关闭弹窗");
+        }
         toastLog(error);
         sleep(2000);
         if (text("重新加载").exists()) {
@@ -127,18 +139,18 @@ function main() {
   launch(package);
   toastLog("等待可能的弹窗广告");
   sleep(10000);
-
-  toastLog("等待结束，发送返回按键");
-  back(); // 出现弹窗广告时关闭
+  toastLog("等待完成");
+  back();
   sleep(2000);
+  toastLog("开始操作");
 
   viewPost();
   checkIn();
 
   let result = shell(`am force-stop ${package}`, true);
   toastLog(result);
-  lockScreen();
+  // lockScreen();
 }
 
 main();
-// viewPost();
+//unlockScreen();
